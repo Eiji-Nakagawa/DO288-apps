@@ -5,13 +5,11 @@ pipeline {
     }
     agent {
       node {
-        //TODO: Add label for the Maven jenkins agent
         label 'maven'
       }
     }
 
     environment {
-        //TODO: Customize these variables for your environment
         DEV_PROJECT = "bi920399-jp-ibm-com-movies-dev"
         STAGE_PROJECT = "bi920399-jp-ibm-com-movies-stage"
         APP_GIT_URL = "https://github.com/Eiji-Nakagawa/DO288-apps"
@@ -82,18 +80,15 @@ pipeline {
                       }
                     }
                 }
-                // TODO: Create a new OpenShift application based on the ${APP_NAME}:latest image stream
-                // TODO: Expose the ${APP_NAME} service for external access
                 sh '''
                     oc project ${DEV_PROJECT}
                     oc new-app ${APP_NAME}:latest --name=${APP_NAME}
                     oc expose svc/${APP_NAME}
-                '''
+                   '''
             }
         }
 
         stage('Wait for deployment in DEV env') {
-            //TODO: Watch deployment until pod is in 'Running' state
             steps {
                 script {
                     openshift.withCluster() {
@@ -115,7 +110,6 @@ pipeline {
                 }
                 script {
                     openshift.withCluster() {
-                    // TODO: Tag the ${APP_NAME}:latest image stream in the dev env as ${APP_NAME}:stage in staging
                         openshift.tag("${DEV_PROJECT}/${APP_NAME}:latest", "${STAGE_PROJECT}/${APP_NAME}:stage")
                     }
                 }
@@ -132,12 +126,11 @@ pipeline {
                    '''
 
                 echo '### Creating a new app in Staging ###'
-                // TODO: Create a new app in staging and expose the service
                 sh '''
                     oc project ${STAGE_PROJECT}
                     oc new-app --name=${APP_NAME} ${STAGE_PROJECT}/${APP_NAME}:stage
                     oc expose svc/${APP_NAME}
-                '''
+                   '''
             }
         }
 
